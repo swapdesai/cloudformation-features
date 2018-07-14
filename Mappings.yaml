@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Metadata: 
+  License: Apache-2.0
+Description: A simple example to create a Cloud Formation stack to spin up an EC2 instance in Sydney region
+
+Mappings: 
+  RegionMap: 
+    us-east-1: 
+      AMI: ami-1853ac65
+    ap-southeast-2: 
+      AMI: ami-33f92051
+
+Resources:
+  EC2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: 
+        Fn::FindInMap:
+          - RegionMap
+          - !Ref AWS::Region
+          - AMI
+      InstanceType: t2.micro
+      SecurityGroups:
+        - !Ref MySecurityGroup
+  MySecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties: 
+      GroupDescription: Enable SSH access via port 22
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: 0.0.0.0/0
+
+Outputs:
+  InstanceID:
+    Description: The Instance ID
+    Value: 
+      Ref: EC2Instance
